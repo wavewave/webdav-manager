@@ -19,5 +19,7 @@ Library
                  directory, process
   Exposed-Modules: 
                    HEP.Storage.WebDAV
+                   HEP.Storage.WebDAV.Type
+--  Other-Modules:
 --                   HEP.Storage.WebDAV.Type
 		 
