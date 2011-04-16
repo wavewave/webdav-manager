@@ -7,6 +7,6 @@ data WebDAVConfig = WebDAVConfig {
 
 data WebDAVRemoteDir = WebDAVRemoteDir {
     webdav_remotedir :: FilePath
-  }
+  } deriving Show
 
 
