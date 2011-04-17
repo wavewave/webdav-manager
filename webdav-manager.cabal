@@ -1,5 +1,5 @@
 Name:		webdav-manager
-Version:	0.0
+Version:	0.0.1.0
 Synopsis:	webdav-manager : common routine for webdav server
 Description: 	webdav-manager
 License: 	GPL-3
@@ -20,6 +20,4 @@ Library
   Exposed-Modules: 
                    HEP.Storage.WebDAV
                    HEP.Storage.WebDAV.Type
---  Other-Modules:
---                   HEP.Storage.WebDAV.Type
 		 

@@ -1,3 +1,7 @@
+-- | 
+--   Currently, id and password use only  .wgetrc 
+--
+
 module HEP.Storage.WebDAV ( 
   module HEP.Storage.WebDAV.Type, 
   fetchFile
@@ -14,9 +18,7 @@ fetchFile :: WebDAVConfig
              -> IO ()   
 fetchFile wdavc rdir filename = do 
   readProcess (webdav_path_wget wdavc) 
-              [ "--user=" ++ webdav_id wdavc
-              , "--password=" ++ webdav_passwd wdavc 
-              , webdav_baseurl wdavc </> webdav_remotedir rdir 
+              [ webdav_baseurl wdavc </> webdav_remotedir rdir 
                 </> filename ]
               "" 
   return ()
