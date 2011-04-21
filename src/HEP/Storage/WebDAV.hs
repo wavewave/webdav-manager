@@ -31,7 +31,8 @@ uploadFile :: WebDAVConfig
 uploadFile wdavc rdir filepath = do 
   let scriptstr = mkCadaverScript wdavc rdir filepath Upload
   putStrLn scriptstr 
-  readProcess (webdav_path_cadaver wdavc) [] scriptstr
+  result <- readProcess (webdav_path_cadaver wdavc) [] scriptstr
+  putStrLn result 
   return () 
   
 mkCadaverScript :: WebDAVConfig
