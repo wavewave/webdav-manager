@@ -12,3 +12,12 @@ data WebDAVRemoteDir = WebDAVRemoteDir {
 
 data WebDAVCommand = Download | Upload
 
+data WebDAVServer = WebDAVServer { 
+  webdav_server_url :: String
+}
+
+data WebDAVClient = WebDAVClient { 
+  webdav_client_wget :: FilePath, 
+  webdav_client_cadaver :: FilePath
+}
+
