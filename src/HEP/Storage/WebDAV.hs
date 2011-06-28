@@ -40,7 +40,7 @@ mkCadaverScript :: WebDAVConfig
                      -> FilePath 
                      -> WebDAVCommand
                      -> String 
-mkCadaverScript wdavc rdir filepath Download = undefined 
+mkCadaverScript _wdavc _rdir _filepath Download = undefined 
 mkCadaverScript wdavc rdir filepath Upload = 
   let (dirpath,filename) = (takeDirectory filepath, takeFileName filepath) 
   in  "open " ++ (webdav_baseurl wdavc </> webdav_remotedir rdir) ++ "\n"
