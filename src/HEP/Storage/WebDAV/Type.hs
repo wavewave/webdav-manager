@@ -2,19 +2,21 @@
 
 module HEP.Storage.WebDAV.Type where
 
+import Data.Typeable
 import Data.Data
 
 data WebDAVConfig = WebDAVConfig {
         webdav_path_wget :: String,
         webdav_path_cadaver :: String, 
         webdav_baseurl   :: String
-        } deriving Show
+        } deriving (Show, Typeable, Data)
 
 data WebDAVRemoteDir = WebDAVRemoteDir {
     webdav_remotedir :: FilePath
-  } deriving Show
+  } deriving (Show, Typeable, Data)
 
 data WebDAVCommand = Download | Upload
+  deriving (Show, Typeable, Data)
 
 data WebDAVServer = WebDAVServer { 
   webdav_server_url :: String
