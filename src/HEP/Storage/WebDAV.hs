@@ -14,6 +14,7 @@ import System.Directory
 import System.Process
 import System.FilePath
 
+import Control.Applicative
 
 -- | deprecated
 
@@ -29,7 +30,7 @@ data URLtype = LocalURL FilePath
 checkUrl :: String -> Maybe URLtype
 checkUrl str = 
   if length str > 6 
-  then let (method,path)= splitAt 6 str 
+  then let (method,path)= splitAt 7 str 
        in case method of 
             "file://" -> Just (LocalURL path)
             "http://" -> Just (GlobalURL str)
@@ -63,7 +64,7 @@ downloadFile wdavc rdir filename = do
 uploadFile :: WebDAVConfig
               -> WebDAVRemoteDir
               -> FilePath          -- ^ local file name
-              -> IO () 
+              -> IO Bool 
 uploadFile wdavc rdir filepath = do
   let r_url = checkUrl (webdav_baseurl wdavc)
   case r_url of
@@ -72,14 +73,19 @@ uploadFile wdavc rdir filepath = do
       let remotedir = path </> webdav_remotedir rdir 
           (_,localfile) = splitFileName filepath 
       putStrLn $ "copy " ++ filepath ++ " to " ++ (remotedir</>localfile)
-      copyFile filepath (remotedir</>localfile)
-      return ()
+      b <- (&&) <$> doesFileExist filepath <*> doesDirectoryExist remotedir
+      if b 
+        then do
+          copyFile filepath (remotedir</>localfile)
+          return True
+        else
+          return False
     Just (GlobalURL _url) -> do  
       let scriptstr = mkCadaverScript wdavc rdir filepath Upload
       putStrLn scriptstr 
       result <- readProcess (webdav_path_cadaver wdavc) [] scriptstr
       putStrLn result 
-      return () 
+      return True
   
 mkCadaverScript :: WebDAVConfig
                      -> WebDAVRemoteDir
