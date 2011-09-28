@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, GeneralizedNewtypeDeriving #-}
 
 module HEP.Storage.WebDAV.Type where
 
@@ -11,14 +11,14 @@ data WebDAVConfig = WebDAVConfig {
         webdav_baseurl   :: String
         } deriving (Show, Typeable, Data)
 
-data WebDAVRemoteDir = WebDAVRemoteDir {
+newtype WebDAVRemoteDir = WebDAVRemoteDir {
     webdav_remotedir :: FilePath
   } deriving (Show, Typeable, Data)
 
 data WebDAVCommand = Download | Upload
   deriving (Show, Typeable, Data)
 
-data WebDAVServer = WebDAVServer { 
+newtype WebDAVServer = WebDAVServer { 
   webdav_server_url :: String
 } deriving (Show,Typeable,Data)
 
