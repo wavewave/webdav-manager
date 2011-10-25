@@ -5,7 +5,8 @@
 module HEP.Storage.WebDAV ( 
   module HEP.Storage.WebDAV.Type, 
   fetchFile, 
-  uploadFile
+  uploadFile, 
+  checkUrl
   ) where
 
 import HEP.Storage.WebDAV.Type
@@ -26,6 +27,7 @@ fetchFile = downloadFile
 
 data URLtype = LocalURL FilePath
              | GlobalURL String
+             deriving (Show)
 
 checkUrl :: String -> Maybe URLtype
 checkUrl str = 
