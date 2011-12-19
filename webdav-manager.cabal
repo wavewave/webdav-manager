@@ -1,5 +1,5 @@
 Name:		webdav-manager
-Version:	0.1.1
+Version:	0.1.1.0
 Synopsis:	webdav-manager : common routine for webdav server
 Description: 	webdav-manager
 License: 	BSD3
@@ -15,7 +15,7 @@ Library
   ghc-options: 	-Wall -O2 -threaded -funbox-strict-fields -fno-warn-unused-do-bind
   ghc-prof-options: -caf-all -auto-all
   Build-Depends: base>4, mtl>2, filepath > 1,
-                 attoparsec > 0.9,
+                 attoparsec == 0.10.*,
                  bytestring > 0.9, 
                  directory, process
   Exposed-Modules: 
