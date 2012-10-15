@@ -19,17 +19,18 @@ import System.FilePath
 import Control.Applicative
 
 -- | deprecated
-
 fetchFile :: WebDAVConfig 
              -> WebDAVRemoteDir 
              -> FilePath         -- ^ remote file name
              -> IO ()   
 fetchFile = downloadFile
 
+-- | 
 data URLtype = LocalURL FilePath
              | GlobalURL String
              deriving (Show)
 
+-- | 
 checkUrl :: String -> Maybe URLtype
 checkUrl str = 
   if length str > 6 
@@ -40,8 +41,7 @@ checkUrl str =
             _ -> Nothing
   else Nothing
                    
-
-
+-- | 
 downloadFile :: WebDAVConfig 
              -> WebDAVRemoteDir 
              -> FilePath         -- ^ remote file name
@@ -64,6 +64,7 @@ downloadFile wdavc rdir filename = do
                   "" 
       return ()
 
+-- | 
 checkNdownloadFile :: WebDAVConfig 
                       -> WebDAVRemoteDir
                       -> FilePath
@@ -83,17 +84,11 @@ checkNdownloadFile wdavc rdir filename = do
     Just (GlobalURL url) -> do  
       putStrLn "downloading --- " 
       system $ (webdav_path_wget wdavc) ++ " " ++ (url </> webdav_remotedir rdir </> filename)   
-      -- readProcess (webdav_path_wget wdavc) 
-      --           [ url </> webdav_remotedir rdir 
-      --                   </> filename ]
-      --             "" 
       let (_,newfile) = splitFileName filename
       return =<< doesFileExist newfile
-      
-      -- return ()
+
   
-
-
+-- | 
 uploadFile :: WebDAVConfig
               -> WebDAVRemoteDir
               -> FilePath          -- ^ local file name
@@ -119,12 +114,13 @@ uploadFile wdavc rdir filepath = do
       result <- readProcess (webdav_path_cadaver wdavc) [] scriptstr
       putStrLn result 
       return True
-  
+
+-- |   
 mkCadaverScript :: WebDAVConfig
-                     -> WebDAVRemoteDir
-                     -> FilePath 
-                     -> WebDAVCommand
-                     -> String 
+                   -> WebDAVRemoteDir
+                   -> FilePath 
+                   -> WebDAVCommand
+                   -> String 
 mkCadaverScript _wdavc _rdir _filepath Download = undefined 
 mkCadaverScript wdavc rdir filepath Upload = 
   let (dirpath,filename) = (takeDirectory filepath, takeFileName filepath) 
