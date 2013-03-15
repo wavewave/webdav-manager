@@ -24,4 +24,5 @@ Library
                    HEP.Storage.WebDAV
                    HEP.Storage.WebDAV.CURL
                    HEP.Storage.WebDAV.Type
+                   HEP.Storage.WebDAV.Util
 		 

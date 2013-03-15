@@ -23,7 +23,7 @@ cabal copy
 
 
 tar cvzf webdav-manager.tar.gz $HOME/.cabal/share/doc/webdav-manager*
-echo $CR | curl --digest -T fficxx.tar.gz -K - $SRVRURL 
+echo $CR | curl --digest -T webdav-manager.tar.gz -K - $SRVRURL 
 
 
 # this is needed for checking

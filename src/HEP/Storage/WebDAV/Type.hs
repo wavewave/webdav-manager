@@ -24,9 +24,17 @@ data URLtype = LocalURL FilePath
              | GlobalURL String
              deriving (Show)
 
+-- | 
+data WebDAVProgram = UseCurl (Maybe FilePath) 
+--  | Cadaver (Maybe FilePath)
+
+-- | 
+data Credential = CredDigest String String | NoCred
+
 data WebDAVConfig = WebDAVConfig {
-        webdav_path_wget :: String,
-        webdav_path_cadaver :: String, 
+        -- webdav_program :: WebDAVProgram, 
+        -- webdav_path_wget :: String,
+        -- webdav_path_cadaver :: String, 
         webdav_baseurl   :: String
         } deriving (Show, Typeable, Data)
 
@@ -37,6 +45,7 @@ newtype WebDAVRemoteDir = WebDAVRemoteDir {
 data WebDAVCommand = Download | Upload
   deriving (Show, Typeable, Data)
 
+{- 
 newtype WebDAVServer = WebDAVServer { 
   webdav_server_url :: String
 } deriving (Show,Typeable,Data)
@@ -46,3 +55,4 @@ data WebDAVClient = WebDAVClient {
   webdav_client_cadaver :: FilePath
 } deriving (Show,Typeable,Data)
 
+-}
