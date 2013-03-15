@@ -22,5 +22,6 @@ Library
                  process
   Exposed-Modules: 
                    HEP.Storage.WebDAV
+                   HEP.Storage.WebDAV.CURL
                    HEP.Storage.WebDAV.Type
 		 

@@ -14,7 +14,7 @@
 
 module HEP.Storage.WebDAV ( 
   module HEP.Storage.WebDAV.Type, 
-  fetchFile, 
+  downloadFile, 
   uploadFile, 
   checkUrl, 
   checkNdownloadFile, 
