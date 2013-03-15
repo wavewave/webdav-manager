@@ -31,16 +31,19 @@ data WebDAVProgram = UseCurl (Maybe FilePath)
 -- | 
 data Credential = CredDigest String String | NoCred
 
-data WebDAVConfig = WebDAVConfig {
+
         -- webdav_program :: WebDAVProgram, 
         -- webdav_path_wget :: String,
-        -- webdav_path_cadaver :: String, 
-        webdav_baseurl   :: String
-        } deriving (Show, Typeable, Data)
+        -- webdav_path_cadaver :: String,
 
-newtype WebDAVRemoteDir = WebDAVRemoteDir {
-    webdav_remotedir :: FilePath
-  } deriving (Show, Typeable, Data)
+data WebDAVConfig = WebDAVConfig { webdav_credential :: Credential 
+                                 , webdav_baseurl   :: String 
+                                 } 
+--                     deriving (Show, Typeable, Data)
+
+data WebDAVRemoteDir = WebDAVRemoteDir {  webdav_remotedir :: FilePath } 
+                       deriving (Show, Typeable, Data)
+
 
 data WebDAVCommand = Download | Upload
   deriving (Show, Typeable, Data)

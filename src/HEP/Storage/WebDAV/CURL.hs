@@ -41,12 +41,11 @@ getCredentialStdin _ = []
 -- | 
 downloadFile :: WebDAVConfig 
              -> WebDAVRemoteDir 
-             -> Credential 
              -> FilePath         -- ^ remote file name
-             -> IO ()   
-downloadFile wdavc rdir cr filename = 
+             -> IO Bool 
+downloadFile wdavc rdir filename = 
   checkUrl (webdav_baseurl wdavc) #
-    maybe (error ("no such url : " ++ webdav_baseurl wdavc)) ( \r_url -> 
+    maybe (return False) ( \r_url -> 
       case r_url of 
         LocalURL path -> do 
           let remotepath = path </> webdav_remotedir rdir </> filename
@@ -54,79 +53,59 @@ downloadFile wdavc rdir cr filename =
           currdir <- getCurrentDirectory 
           putStrLn $ "copy " ++ remotepath ++ " to " ++ (currdir </> remotefile)
           copyFile remotepath (currdir </> remotefile)
-          return ()
+          b <- doesFileExist remotepath 
+          if b then do {copyFile remotepath (currdir </> remotefile); return True}
+               else return False
         GlobalURL urlroot -> do
+          let cr = webdav_credential wdavc
           let fullurl = urlroot </> webdav_remotedir rdir </> filename
           readProcess "curl"
                       (getCredentialOption cr
                        ++ [ "-o", filename,  fullurl])
                       (getCredentialStdin cr)
-          return ()
+          return =<< doesFileExist filename 
     )
 
   
 -- | 
 uploadFile :: WebDAVConfig
               -> WebDAVRemoteDir
-              -> Credential 
               -> FilePath          -- ^ local file name
               -> IO Bool 
-uploadFile wdavc rdir cr filepath = do
-  let r_url = checkUrl (webdav_baseurl wdavc)
-  case r_url of
-    Nothing -> error ("no such url : " ++ webdav_baseurl wdavc)
-    Just (LocalURL path) -> do  
-      let remotedir = path </> webdav_remotedir rdir 
-          (_,localfile) = splitFileName filepath 
-      putStrLn $ "copy " ++ filepath ++ " to " ++ (remotedir</>localfile)
-      b <- (&&) <$> doesFileExist filepath <*> doesDirectoryExist remotedir
-      if b 
-        then do
-          copyFile filepath (remotedir</>localfile)
-          return True
-        else
-          return False
-    Just (GlobalURL urlroot) -> do  
-      -- let scriptstr = mkCadaverScript wdavc rdir filepath Upload
-      -- putStrLn scriptstr 
-      let fullurl = urlroot </> webdav_remotedir rdir ++ "/"
-      result <- readProcess "curl" 
-                  (getCredentialOption cr
-                   ++ ["-T",filepath,fullurl] 
-                  ) 
-                  (getCredentialStdin cr)
-      putStrLn result 
-      return True
-
-
-
-{-
-
--- | 
-checkNdownloadFile :: WebDAVConfig 
-                      -> WebDAVRemoteDir
-                      -> FilePath
-                      -> IO Bool 
-checkNdownloadFile wdavc rdir filename = do
+uploadFile wdavc rdir filepath = do
   checkUrl (webdav_baseurl wdavc) #
-    maybe (return False) $ \r_url -> 
+    maybe (return False) ( \r_url -> 
       case r_url of 
         LocalURL path -> do  
-          let remotepath = path </> webdav_remotedir rdir </> filename
-              (_,remotefile) = splitFileName remotepath 
-          currdir <- getCurrentDirectory 
-          putStrLn $ "copy " ++ remotepath ++ " to " ++ (currdir </> remotefile)
-          b <- doesFileExist remotepath 
-          if b then do {copyFile remotepath (currdir </> remotefile); return True}
-               else return False
-        GlobalURL url -> do  
-          putStrLn "downloading --- " 
-          system $ (webdav_path_wget wdavc) ++ " " ++ (url </> webdav_remotedir rdir </> filename)   
-          let (_,newfile) = splitFileName filename
-          return =<< doesFileExist newfile
+          let remotedir = path </> webdav_remotedir rdir 
+              (_,localfile) = splitFileName filepath 
+          putStrLn $ "copy " ++ filepath ++ " to " ++ (remotedir</>localfile)
+          b <- (&&) <$> doesFileExist filepath <*> doesDirectoryExist remotedir
+          if b 
+            then do
+              copyFile filepath (remotedir</>localfile)
+              return True
+            else
+              return False
+        GlobalURL urlroot -> do  
+          b <- doesFileExist filepath 
+          if b 
+            then do 
+              let cr = webdav_credential wdavc
+                  fullurl = urlroot </> webdav_remotedir rdir ++ "/"
+              result <- readProcess "curl" 
+                          (getCredentialOption cr
+                           ++ ["-T",filepath,fullurl] 
+                          ) 
+                          (getCredentialStdin cr)
+              putStrLn result 
+              return True
+            else return False 
+              
+        
+    )
 
 
--}
 
 {-
 -- |   
