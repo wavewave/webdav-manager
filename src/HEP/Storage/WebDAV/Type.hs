@@ -5,6 +5,11 @@ module HEP.Storage.WebDAV.Type where
 import Data.Typeable
 import Data.Data
 
+-- | 
+data URLtype = LocalURL FilePath
+             | GlobalURL String
+             deriving (Show)
+
 data WebDAVConfig = WebDAVConfig {
         webdav_path_wget :: String,
         webdav_path_cadaver :: String, 
