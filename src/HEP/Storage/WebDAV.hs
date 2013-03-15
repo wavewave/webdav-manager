@@ -14,8 +14,9 @@
 
 module HEP.Storage.WebDAV ( 
   module HEP.Storage.WebDAV.Type, 
-  downloadFile, 
-  -- uploadFile, 
+  module HEP.Storage.WebDAV.CURL
+  -- downloadFile, 
+  -- uploadFile
   -- checkUrl, 
   -- checkNdownloadFile, 
   -- mkCadaverScript

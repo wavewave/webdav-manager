@@ -13,8 +13,8 @@
 -----------------------------------------------------------------------------
 
 module HEP.Storage.WebDAV.CURL ( 
-  downloadFile
-
+  downloadFile, 
+  uploadFile
 ) where
 
 import Control.Applicative
@@ -37,6 +37,7 @@ getCredentialOption _ = []
 getCredentialStdin :: Credential -> String 
 getCredentialStdin (CredDigest i p) = "-u " ++ i ++ ":" ++ p
 getCredentialStdin _ = []
+
 -- | 
 downloadFile :: WebDAVConfig 
              -> WebDAVRemoteDir 
@@ -54,15 +55,51 @@ downloadFile wdavc rdir cr filename =
           putStrLn $ "copy " ++ remotepath ++ " to " ++ (currdir </> remotefile)
           copyFile remotepath (currdir </> remotefile)
           return ()
-        GlobalURL url -> do
-          let arg = url </> webdav_remotedir rdir </> filename
-          print arg
+        GlobalURL urlroot -> do
+          let fullurl = urlroot </> webdav_remotedir rdir </> filename
           readProcess "curl"
                       (getCredentialOption cr
-                       ++ [ "-o", filename,  arg ])
+                       ++ [ "-o", filename,  fullurl])
                       (getCredentialStdin cr)
           return ()
     )
+
+  
+-- | 
+uploadFile :: WebDAVConfig
+              -> WebDAVRemoteDir
+              -> Credential 
+              -> FilePath          -- ^ local file name
+              -> IO Bool 
+uploadFile wdavc rdir cr filepath = do
+  let r_url = checkUrl (webdav_baseurl wdavc)
+  case r_url of
+    Nothing -> error ("no such url : " ++ webdav_baseurl wdavc)
+    Just (LocalURL path) -> do  
+      let remotedir = path </> webdav_remotedir rdir 
+          (_,localfile) = splitFileName filepath 
+      putStrLn $ "copy " ++ filepath ++ " to " ++ (remotedir</>localfile)
+      b <- (&&) <$> doesFileExist filepath <*> doesDirectoryExist remotedir
+      if b 
+        then do
+          copyFile filepath (remotedir</>localfile)
+          return True
+        else
+          return False
+    Just (GlobalURL urlroot) -> do  
+      -- let scriptstr = mkCadaverScript wdavc rdir filepath Upload
+      -- putStrLn scriptstr 
+      let fullurl = urlroot </> webdav_remotedir rdir ++ "/"
+      result <- readProcess "curl" 
+                  (getCredentialOption cr
+                   ++ ["-T",filepath,fullurl] 
+                  ) 
+                  (getCredentialStdin cr)
+      putStrLn result 
+      return True
+
+
+
 {-
 
 -- | 
@@ -91,34 +128,7 @@ checkNdownloadFile wdavc rdir filename = do
 
 -}
 
-{-  
--- | 
-uploadFile :: WebDAVConfig
-              -> WebDAVRemoteDir
-              -> FilePath          -- ^ local file name
-              -> IO Bool 
-uploadFile wdavc rdir filepath = do
-  let r_url = checkUrl (webdav_baseurl wdavc)
-  case r_url of
-    Nothing -> error ("no such url : " ++ webdav_baseurl wdavc)
-    Just (LocalURL path) -> do  
-      let remotedir = path </> webdav_remotedir rdir 
-          (_,localfile) = splitFileName filepath 
-      putStrLn $ "copy " ++ filepath ++ " to " ++ (remotedir</>localfile)
-      b <- (&&) <$> doesFileExist filepath <*> doesDirectoryExist remotedir
-      if b 
-        then do
-          copyFile filepath (remotedir</>localfile)
-          return True
-        else
-          return False
-    Just (GlobalURL _url) -> do  
-      let scriptstr = mkCadaverScript wdavc rdir filepath Upload
-      putStrLn scriptstr 
-      result <- readProcess (webdav_path_cadaver wdavc) [] scriptstr
-      putStrLn result 
-      return True
-
+{-
 -- |   
 mkCadaverScript :: WebDAVConfig
                    -> WebDAVRemoteDir
