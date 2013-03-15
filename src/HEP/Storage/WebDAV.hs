@@ -1,6 +1,16 @@
--- | 
---   Currently, id and password use only  .wgetrc 
+-----------------------------------------------------------------------------
+-- |
+-- Module      : HEP.Storage.WebDAV
+-- Copyright   : (c) 2011-2013 Ian-Woo Kim
 --
+-- License     : GPL-3
+-- Maintainer  : Ian-Woo Kim <ianwookim@gmail.com>
+-- Stability   : experimental
+-- Portability : GHC
+--
+-- WebDAV storage file IO interface
+-- 
+-----------------------------------------------------------------------------
 
 module HEP.Storage.WebDAV ( 
   module HEP.Storage.WebDAV.Type, 
@@ -11,21 +21,21 @@ module HEP.Storage.WebDAV (
   mkCadaverScript
   ) where
 
-import HEP.Storage.WebDAV.Type
-
+import Control.Applicative
 import System.Directory
 import System.Process
 import System.FilePath
+-- 
+import HEP.Storage.WebDAV.Type
 
-import Control.Applicative
-
+{- 
 -- | deprecated
 fetchFile :: WebDAVConfig 
              -> WebDAVRemoteDir 
              -> FilePath         -- ^ remote file name
              -> IO ()   
 fetchFile = downloadFile
-
+-}
 
 -- | 
 checkUrl :: String -> Maybe URLtype
