@@ -1,6 +1,8 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -----------------------------------------------------------------------------
 -- |
--- Module      : HEP.Storage.WebDAV.Curl
+-- Module      : HEP.Storage.WebDAV.CURL
 -- Copyright   : (c) 2013 Ian-Woo Kim
 --
 -- License     : GPL-3
@@ -14,10 +16,13 @@
 
 module HEP.Storage.WebDAV.CURL ( 
   downloadFile, 
-  uploadFile
+  uploadFile, 
+  doesFileExistInDAV
 ) where
 
-import Control.Applicative
+import Control.Applicative ((<$>),(<*>))
+import Data.Attoparsec.Char8 
+import qualified Data.ByteString.Char8 as B 
 import System.Directory
 import System.Process
 import System.FilePath
@@ -101,10 +106,35 @@ uploadFile wdavc rdir filepath = do
               putStrLn result 
               return True
             else return False 
-              
-        
     )
 
+
+-- | check whether a file exists in webdav server using PROPFIND HTTP method 
+doesFileExistInDAV :: WebDAVConfig -> WebDAVRemoteDir -> FilePath -> IO Bool 
+doesFileExistInDAV wdavconfig wdavrdir filename = do 
+    case checkUrl (webdav_baseurl wdavconfig) of 
+      Nothing -> return False
+      Just r_url -> case r_url of  
+        LocalURL _ -> return False 
+        GlobalURL urlroot -> do 
+          let cr = webdav_credential wdavconfig 
+          let fullurl = urlroot </> webdav_remotedir wdavrdir </> filename
+          result <- readProcess "curl" 
+                      (["-I","-X","PROPFIND"]
+                       ++ getCredentialOption cr
+                       ++ [fullurl]) 
+                      (getCredentialStdin cr) 
+          let e = parseOnly p_result (B.pack result) 
+          case e of 
+            Left _ -> return False
+            Right (c1,c2) -> return ((c1,c2) == (401,207))
+  where p_result :: Parser (Int,Int)
+        p_result = (,) <$> p_http_status <*> p_http_status 
+        p_http_status :: Parser Int 
+        p_http_status = do 
+          manyTill anyChar (try (string "HTTP/1.1")) 
+          skipSpace
+          read <$> manyTill anyChar (try (char ' '))
 
 
 {-
