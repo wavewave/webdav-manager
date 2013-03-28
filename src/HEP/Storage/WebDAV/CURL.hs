@@ -115,7 +115,7 @@ doesFileExistInDAV wdavconfig wdavrdir filename = do
     case checkUrl (webdav_baseurl wdavconfig) of 
       Nothing -> return False
       Just r_url -> case r_url of  
-        LocalURL _ -> return False 
+        LocalURL _ -> return True -- return False 
         GlobalURL urlroot -> do 
           let cr = webdav_credential wdavconfig 
           let fullurl = urlroot </> webdav_remotedir wdavrdir </> filename
