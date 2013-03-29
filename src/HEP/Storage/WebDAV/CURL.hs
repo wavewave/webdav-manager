@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -44,13 +45,14 @@ getCredentialStdin (CredDigest i p) = "-u " ++ i ++ ":" ++ p
 getCredentialStdin _ = []
 
 -- | 
-downloadFile :: WebDAVConfig 
+downloadFile :: Bool             -- ^ will result be to stdout ?
+             -> WebDAVConfig 
              -> WebDAVRemoteDir 
              -> FilePath         -- ^ remote file name
-             -> IO Bool 
-downloadFile wdavc rdir filename = 
+             -> IO (Bool,Maybe String)  
+downloadFile isstdout wdavc rdir filename = 
   checkUrl (webdav_baseurl wdavc) #
-    maybe (return False) ( \r_url -> 
+    maybe (return (False,Nothing)) ( \r_url -> 
       case r_url of 
         LocalURL path -> do 
           let remotepath = path </> webdav_remotedir rdir </> filename
@@ -59,16 +61,17 @@ downloadFile wdavc rdir filename =
           putStrLn $ "copy " ++ remotepath ++ " to " ++ (currdir </> remotefile)
           copyFile remotepath (currdir </> remotefile)
           b <- doesFileExist remotepath 
-          if b then do {copyFile remotepath (currdir </> remotefile); return True}
-               else return False
+          if b then do {copyFile remotepath (currdir </> remotefile); return (True,Nothing)}
+               else return (False,Nothing)
         GlobalURL urlroot -> do
           let cr = webdav_credential wdavc
           let fullurl = urlroot </> webdav_remotedir rdir </> filename
-          readProcess "curl"
-                      (getCredentialOption cr
-                       ++ [ "-o", filename,  fullurl])
-                      (getCredentialStdin cr)
-          return =<< doesFileExist filename 
+          str <- readProcess "curl"
+                   (getCredentialOption cr
+                    ++ (if isstdout then [] else  [ "-o", filename]) ++ [fullurl])
+                   (getCredentialStdin cr)
+          let mresult = if isstdout then Just str else Nothing
+          return . (,mresult) =<< doesFileExist filename 
     )
 
   
